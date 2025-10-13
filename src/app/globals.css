@@ -1,8 +1,54 @@
 @import "tailwindcss";
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: "emailly";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Base colors */
+  --color-base-100: #F8F5EE;
+  --color-base-200: #F2EFE7;
+  --color-base-300: #EAE6DC;
+  --color-base-content: #242425;
+
+  /* Primary - Periwinkle Blue */
+  --color-primary: #839DF9;
+  --color-primary-content: #ffffff;
+
+  /* Secondary - Coral Red */
+  --color-secondary: #F77658;
+  --color-secondary-content: #ffffff;
+
+  /* Accent - Yellow */
+  --color-accent: #FFC936;
+  --color-accent-content: #2A2A2A;
+
+  /* Neutral - Charcoal */
+  --color-neutral: #242425;
+  --color-neutral-content: #F8F5EE;
+
+  /* Info / Success / Warning / Error (derived) */
+  --color-info: #839DF9;
+  --color-success: #5CBF84;
+  --color-warning: #FFC936;
+  --color-error: #F77658;
+
+  /* Radius & borders */
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --border: 1px;
+
+  /* Effects */
+  --depth: 1;
+  --noise: 0;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8F5EE;
+  --foreground: #242425;
 }
 
 @theme inline {
@@ -12,15 +58,65 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(6deg); }
+  50% { transform: translateY(-10px) rotate(6deg); }
+}
+@keyframes floatDelayed {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-12px) rotate(-6deg); }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+.animate-float-delayed {
+  animation: floatDelayed 5s ease-in-out infinite;
+}
+
+
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-6deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0) rotate(6deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(6deg);
+  }
+}
+
+
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px) rotate(-6deg); }
+  50% { transform: translateY(-8px) rotate(-6deg); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 4s ease-in-out infinite;
 }
