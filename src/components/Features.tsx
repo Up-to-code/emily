@@ -1,135 +1,136 @@
-// components/CTA.tsx
-import { FiArrowRight, FiCalendar, FiMail, FiUsers, FiStar, FiCheck } from 'react-icons/fi';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+import { useState } from 'react';
+import { FiZap, FiMail, FiSliders, FiBarChart2, FiShare2, FiLock } from 'react-icons/fi';
 
-export default function CTA() {
+const brandColors = {
+  primary: "#1E90FF",
+  secondary: "#FF6A00",
+  accent: "#FFD700",
+};
+
+const features = [
+  {
+    icon: FiZap,
+    title: "AI Powered",
+    description: "Generate beautiful emails instantly with our advanced AI",
+    color: brandColors.secondary
+  },
+  {
+    icon: FiMail,
+    title: "Drag & Drop",
+    description: "Intuitive editor with simple drag and drop interface",
+    color: brandColors.primary
+  },
+  {
+    icon: FiSliders,
+    title: "Full Control",
+    description: "Customize every element to match your brand perfectly",
+    color: brandColors.accent
+  },
+  {
+    icon: FiBarChart2,
+    title: "Analytics",
+    description: "Track opens, clicks, and conversions in real-time",
+    color: brandColors.secondary
+  },
+  {
+    icon: FiShare2,
+    title: "Easy Sharing",
+    description: "Send to thousands or share with your team instantly",
+    color: brandColors.primary
+  },
+  {
+    icon: FiLock,
+    title: "Secure",
+    description: "Enterprise-grade security for your email campaigns",
+    color: brandColors.accent
+  }
+];
+
+export default function FeaturesComponent() {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
   return (
-    <section id="cta" className="py-20 px-6 bg-base-100">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <div className="text-left">
-            <div className="inline-flex items-center gap-3 bg-base-100 rounded-2xl px-5 py-3 mb-8 border-2 border-accent">
-              <FiMail className="text-primary text-lg" />
-              <span className="text-primary font-semibold text-sm">READY TO GET STARTED?</span>
-            </div>
-
-            <h2 className="text-4xl md:text-5xl font-bold text-base-content mb-6 leading-tight">
-              Start Creating
-              <span className="block text-primary">Amazing Emails</span>
-              Today
-            </h2>
-            
-            <p className="text-base-content/70 text-lg mb-8 leading-relaxed">
-              Join thousands of users creating stunning email campaigns with our intuitive drag-and-drop builder. No credit card required.
-            </p>
-
-            {/* Trust Indicators */}
-            <div className="flex flex-col sm:flex-row gap-8 mb-8">
-              <div className="flex items-center gap-4">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3].map((i) => (
-                    <div 
-                      key={i}
-                      className="w-10 h-10 bg-primary rounded-full border-2 border-base-100 flex items-center justify-center text-primary-content text-sm font-bold"
-                    >
-                      {i}
-                    </div>
-                  ))}
-                </div>
-                <div className="text-base-content">
-                  <div className="font-bold text-lg">10,000+</div>
-                  <div className="text-base-content/70 text-sm">Active Users</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <FiStar key={star} className="w-4 h-4 text-warning fill-current" />
-                  ))}
-                </div>
-                <div className="text-base-content">
-                  <div className="font-bold text-lg">4.9/5</div>
-                  <div className="text-base-content/70 text-sm">Rating</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Feature List */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-              {[
-                "No credit card required",
-                "Free forever plan",
-                "30-day money back",
-                "24/7 support"
-              ].map((feature, index) => (
-                <div key={index} className="flex items-center gap-3 text-base-content/70">
-                  <div className="bg-primary rounded-full p-1.5">
-                    <FiCheck className="w-3 h-3 text-primary-content" />
-                  </div>
-                  <span className="font-medium text-sm">{feature}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Content - CTA Cards */}
-          <div className="space-y-6">
-            {/* Main CTA Card */}
-            <div className="bg-base-100 rounded-2xl p-8 border-2 border-accent text-center hover:border-primary transition-colors duration-300 shadow-lg">
-              <h3 className="text-2xl font-bold text-base-content mb-4">Start Free Today</h3>
-              <p className="text-base-content/70 mb-6">Get immediate access to all basic features</p>
-              
-              <div className="space-y-4 mb-6">
-                <button className="w-full bg-secondary text-secondary-content rounded-xl px-6 py-4 font-semibold text-base flex items-center justify-center gap-3 hover:bg-secondary/90 transition-colors duration-300">
-                  Get Started Free
-                  <FiArrowRight className="text-lg" />
-                </button>
-                
-                <button className="w-full bg-base-100 text-primary border-2 border-primary rounded-xl px-6 py-4 font-semibold text-base flex items-center justify-center gap-3 hover:bg-primary hover:text-primary-content transition-colors duration-300">
-                  <FiCalendar className="text-lg" />
-                  Schedule a Demo
-                </button>
-              </div>
-
-              <p className="text-base-content/70 text-xs">
-                Free forever plan • No credit card • Cancel anytime
-              </p>
-            </div>
-
-            {/* Trust Badge */}
-            <div className="bg-base-100 rounded-2xl p-6 border-2 border-accent text-center hover:border-primary transition-colors duration-300 shadow-lg">
-              <div className="flex items-center justify-center gap-4 text-base-content">
-                <FiUsers className="text-2xl text-primary" />
-                <div>
-                  <div className="font-bold text-lg">Join 10,000+ Users</div>
-                  <div className="text-base-content/70 text-sm">Worldwide Community</div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <section 
+      className="py-20 px-6"
+      style={{ backgroundColor: "#F8F5EE" }}
+    >
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-bold mb-4" style={{ color: "#1a1a1a" }}>
+            Why Choose
+            <br />
+            <span style={{ color: brandColors.secondary }}>EmailBuilder</span>
+          </h2>
+          <p className="text-lg" style={{ color: "#666" }}>
+            Everything you need to create, send, and track amazing email campaigns
+          </p>
         </div>
 
-        {/* Bottom Trust Bar */}
-        <div className="text-center mt-12 pt-8 border-t border-accent">
-          <div className="flex flex-wrap justify-center gap-6 text-base-content/70 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-success rounded-full"></div>
-              <span>99.9% Uptime</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-info rounded-full"></div>
-              <span>Bank-Level Security</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full"></div>
-              <span>GDPR Compliant</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-error rounded-full"></div>
-              <span>24/7 Support</span>
-            </div>
-          </div>
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={index}
+                onMouseEnter={() => setHoveredIndex(index as any)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                className="rounded-2xl p-8 border-2 transition-all duration-300 cursor-pointer"
+                style={{
+                  backgroundColor: "white",
+                  borderColor: hoveredIndex === index ? feature.color : "#ddd",
+                  transform: hoveredIndex === index ? "translateY(-8px)" : "translateY(0)",
+                  boxShadow: hoveredIndex === index ? `0 12px 24px ${feature.color}20` : "none"
+                }}
+              >
+                {/* Icon Container */}
+                <div
+                  className="w-14 h-14 rounded-lg flex items-center justify-center mb-6 transition-all duration-300"
+                  style={{
+                    backgroundColor: `${feature.color}15`,
+                    color: feature.color,
+                    transform: hoveredIndex === index ? "scale(1.1) rotate(5deg)" : "scale(1) rotate(0deg)"
+                  }}
+                >
+                  <Icon size={28} />
+                </div>
+
+                {/* Title */}
+                <h3 className="text-xl font-bold mb-3" style={{ color: "#1a1a1a" }}>
+                  {feature.title}
+                </h3>
+
+                {/* Description */}
+                <p style={{ color: "#666" }} className="leading-relaxed">
+                  {feature.description}
+                </p>
+
+                {/* Hover Line */}
+                <div
+                  className="mt-6 h-1 rounded-full transition-all duration-300"
+                  style={{
+                    backgroundColor: feature.color,
+                    width: hoveredIndex === index ? "100%" : "0%"
+                  }}
+                ></div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-16">
+          <button
+            className="rounded-lg px-10 py-4 text-lg font-semibold text-white transition-all hover:scale-105"
+            style={{
+              backgroundColor: brandColors.secondary
+            }}
+          >
+            Start Creating Now
+          </button>
         </div>
       </div>
     </section>

@@ -1,13 +1,14 @@
+/* styles/globals.css */
 @import "tailwindcss";
 @plugin "daisyui";
 
 @plugin "daisyui/theme" {
   name: "emailly";
   default: true;
-  prefersdark: false;
+  prefers-dark: false;
   color-scheme: light;
 
-  /* Base colors */
+  /* Base colors - Warm Beige Palette */
   --color-base-100: #F8F5EE;
   --color-base-200: #F2EFE7;
   --color-base-300: #EAE6DC;
@@ -15,31 +16,26 @@
 
   /* Primary - Periwinkle Blue */
   --color-primary: #839DF9;
-  --color-primary-content: #ffffff;
+  --color-primary-content: #FFFFFF;
 
   /* Secondary - Coral Red */
   --color-secondary: #F77658;
-  --color-secondary-content: #ffffff;
+  --color-secondary-content: #FFFFFF;
 
   /* Accent - Yellow */
   --color-accent: #FFC936;
-  --color-accent-content: #2A2A2A;
+  --color-accent-content: #242425;
 
-  /* Neutral - Charcoal */
-  --color-neutral: #242425;
-  --color-neutral-content: #F8F5EE;
-
-  /* Info / Success / Warning / Error (derived) */
+  /* State Colors */
   --color-info: #839DF9;
   --color-success: #5CBF84;
   --color-warning: #FFC936;
   --color-error: #F77658;
 
-  /* Radius & borders */
-  --radius-selector: 1rem;
-  --radius-field: 0.5rem;
+  /* Radius & Borders */
   --radius-box: 1rem;
-  --border: 1px;
+  --radius-badge: 0.75rem;
+  --border-width: 1px;
 
   /* Effects */
   --depth: 1;
@@ -58,65 +54,217 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* ============================================
+   BASE STYLES
+   ============================================ */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(6deg); }
-  50% { transform: translateY(-10px) rotate(6deg); }
-}
-@keyframes floatDelayed {
-  0%, 100% { transform: translateY(0) rotate(-6deg); }
-  50% { transform: translateY(-12px) rotate(-6deg); }
-}
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-.animate-float-delayed {
-  animation: floatDelayed 5s ease-in-out infinite;
-}
-
-
-
+/* ============================================
+   SMOOTH ANIMATIONS & TRANSITIONS
+   ============================================ */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0) rotate(-6deg);
+    transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px) rotate(-6deg);
+    transform: translateY(-8px);
   }
 }
 
-@keyframes float-delayed {
-  0%, 100% {
-    transform: translateY(0) rotate(6deg);
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
   }
-  50% {
-    transform: translateY(-10px) rotate(6deg);
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
-}
-
-
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes float-delayed {
-  0%, 100% { transform: translateY(0px) rotate(-6deg); }
-  50% { transform: translateY(-8px) rotate(-6deg); }
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
-.animate-float-delayed {
-  animation: float-delayed 4s ease-in-out infinite;
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out;
+}
+
+/* Navigation specific transitions */
+.navigation-enter {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.navigation-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   IMPROVED FOCUS MANAGEMENT
+   ============================================ */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-base-100;
+}
+
+.navigation-item {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset focus:rounded-xl;
+}
+
+/* ============================================
+   ENHANCED NAVIGATION STATES
+   ============================================ */
+.nav-item-active {
+  @apply bg-primary text-primary-content shadow-sm;
+  position: relative;
+}
+
+.nav-item-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--color-primary-content);
+  border-radius: 0 2px 2px 0;
+}
+
+.nav-item-inactive {
+  @apply text-base-content/70 hover:bg-base-200 hover:text-base-content;
+}
+
+/* ============================================
+   BADGE & INDICATOR STYLES
+   ============================================ */
+.nav-badge {
+  @apply inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full text-xs font-medium;
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
+}
+
+.badge-new {
+  @apply bg-accent text-accent-content;
+}
+
+.badge-count {
+  @apply bg-secondary text-secondary-content;
+}
+
+/* ============================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   RESPONSIVE ENHANCEMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  .mobile-nav-overlay {
+    background: rgba(36, 36, 37, 0.4);
+    backdrop-filter: blur(4px);
+  }
+  
+  .navigation-item {
+    @apply py-4; /* Larger touch targets on mobile */
+  }
+}
+
+/* ============================================
+   DARK MODE SUPPORT (Future-ready)
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  [data-theme="emailly"] {
+    color-scheme: light; /* Force light mode for brand consistency */
+  }
+}
+
+/* ============================================
+   PRINT OPTIMIZATIONS
+   ============================================ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* ============================================
+   CUSTOM SCROLLBARS
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-base-200);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-base-content/30);
+}
+
+
+/* Add to your globals.css */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Email preview styling */
+.email-preview {
+  background: linear-gradient(45deg, #f8f5ee 25%, transparent 25%), 
+              linear-gradient(-45deg, #f8f5ee 25%, transparent 25%), 
+              linear-gradient(45deg, transparent 75%, #f8f5ee 75%), 
+              linear-gradient(-45deg, transparent 75%, #f8f5ee 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
 }

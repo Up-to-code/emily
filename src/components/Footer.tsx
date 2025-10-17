@@ -1,34 +1,68 @@
-// components/Footer.tsx
-import { FiHeart } from 'react-icons/fi';
+import { FiHeart, FiMail } from 'react-icons/fi';
+
+const brandColors = {
+  primary: "#1E90FF",
+  secondary: "#FF6A00",
+  accent: "#FFD700",
+};
+
+const footerLinks = [
+  {
+    category: "Product",
+    items: ["Features", "Templates", "Pricing"]
+  },
+  {
+    category: "Resources",
+    items: ["Documentation", "Blog", "Support"]
+  },
+  {
+    category: "Company",
+    items: ["About", "Contact", "Privacy"]
+  }
+];
 
 export default function Footer() {
   return (
-    <footer className="bg-base-200 py-12 px-6 border-t border-base-300">
+    <footer 
+      className="py-16 px-6 border-t"
+      style={{ 
+        backgroundColor: "#F8F5EE",
+        borderColor: "#ddd"
+      }}
+    >
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* Brand */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          {/* Brand Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-xl font-bold text-base-content">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-content">
-                E
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
+                style={{ backgroundColor: brandColors.secondary }}
+              >
+                <FiMail size={20} />
               </div>
-              <span>Emailly</span>
+              <span className="text-lg font-bold" style={{ color: "#1a1a1a" }}>
+                EmailBuilder
+              </span>
             </div>
-            <p className="text-base-content/70 text-sm leading-relaxed">
-              Create beautiful emails that convert with our drag-and-drop builder.
+            <p className="text-sm leading-relaxed" style={{ color: "#666" }}>
+              Create beautiful emails that convert with our AI-powered drag-and-drop builder. No coding required.
             </p>
           </div>
           
-          {/* Links */}
-          {['Product', 'Resources', 'Company'].map((category) => (
-            <div key={category}>
-              <h4 className="font-semibold text-base-content mb-4">{category}</h4>
-              <div className="space-y-2">
-                {['Features', 'Templates', 'Pricing'].map((item) => (
+          {/* Link Sections */}
+          {footerLinks.map((section) => (
+            <div key={section.category}>
+              <h4 className="font-semibold mb-4" style={{ color: "#1a1a1a" }}>
+                {section.category}
+              </h4>
+              <div className="space-y-3">
+                {section.items.map((item) => (
                   <a 
                     key={item} 
                     href="#" 
-                    className="block text-base-content/70 hover:text-primary transition-colors text-sm"
+                    className="block text-sm transition-colors hover:opacity-70"
+                    style={{ color: "#666" }}
                   >
                     {item}
                   </a>
@@ -38,11 +72,25 @@ export default function Footer() {
           ))}
         </div>
         
+        {/* Divider */}
+        <div style={{ borderTop: "1px solid #ddd", margin: "2rem 0" }}></div>
+        
         {/* Bottom Bar */}
-        <div className="border-t border-base-300 pt-8 text-center">
-          <p className="text-base-content/70 text-sm flex items-center justify-center gap-2">
-            © 2024 Emailly. Made with <FiHeart className="text-error" /> for email creators.
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm flex items-center gap-2" style={{ color: "#666" }}>
+            © 2024 EmailBuilder. Made with 
+            <FiHeart size={16} style={{ color: brandColors.secondary }} /> 
+            for email creators.
           </p>
+          
+          <div className="flex items-center gap-6">
+            <a href="#" className="text-sm transition-colors hover:opacity-70" style={{ color: "#666" }}>
+              Privacy Policy
+            </a>
+            <a href="#" className="text-sm transition-colors hover:opacity-70" style={{ color: "#666" }}>
+              Terms of Service
+            </a>
+          </div>
         </div>
       </div>
     </footer>

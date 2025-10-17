@@ -1,11 +1,10 @@
 // app/(auth)/sign-up/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { JSX, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiMail, FiLock, FiUser, FiArrowRight, FiAlertCircle, FiCheck } from 'react-icons/fi';
-
 import { signUp } from '@/lib/auth-client';
 
 interface AuthError {
@@ -14,13 +13,28 @@ interface AuthError {
   status?: number;
 }
 
-export default function SignUpPage() {
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  agreeToTerms: boolean;
+}
+
+const brandColors = {
+  primary: "#1E90FF",
+  secondary: "#FF6A00",
+  accent: "#FFD700",
+};
+
+export default function SignUpPage(): JSX.Element {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
    
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     password: '',
@@ -28,47 +42,15 @@ export default function SignUpPage() {
     agreeToTerms: false,
   });
 
-  const [passwordStrength, setPasswordStrength] = useState({
-    score: 0,
-    label: '',
-    color: '',
-  });
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const checkPasswordStrength = (password: string) => {
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
-    if (/\d/.test(password)) score++;
-    if (/[^a-zA-Z0-9]/.test(password)) score++;
-
-    let label = '';
-    let color = '';
-    
-    if (score <= 1) {
-      label = 'Weak';
-      color = 'text-error';
-    } else if (score <= 3) {
-      label = 'Fair';
-      color = 'text-warning';
-    } else if (score <= 4) {
-      label = 'Good';
-      color = 'text-success';
-    } else {
-      label = 'Strong';
-      color = 'text-success';
-    }
-
-    setPasswordStrength({ score, label, color });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(false);
     
-    // Validation
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all fields');
       setLoading(false);
@@ -81,7 +63,7 @@ export default function SignUpPage() {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
       setLoading(false);
@@ -117,30 +99,21 @@ export default function SignUpPage() {
       if (result?.error) {
         const authError = result.error as AuthError;
         
-        switch (authError.code) {
-          case 'USER_ALREADY_EXISTS':
-          case 'EMAIL_ALREADY_EXISTS':
-            setError('An account with this email already exists');
-            break;
-          case 'INVALID_EMAIL':
-            setError('Invalid email address');
-            break;
-          case 'WEAK_PASSWORD':
-            setError('Password is too weak. Please use a stronger password');
-            break;
-          case 'INVALID_NAME':
-            setError('Invalid name provided');
-            break;
-          default:
-            setError(authError.message || 'Sign up failed. Please try again.');
-        }
+        const errorMessages: Record<string, string> = {
+          USER_ALREADY_EXISTS: 'An account with this email already exists',
+          EMAIL_ALREADY_EXISTS: 'An account with this email already exists',
+          INVALID_EMAIL: 'Invalid email address',
+          WEAK_PASSWORD: 'Password is too weak. Please use a stronger password',
+          INVALID_NAME: 'Invalid name provided',
+        };
+
+        setError(errorMessages[authError.code || ''] || authError.message || 'Sign up failed. Please try again.');
         setLoading(false);
         return;
       }
 
       if (result?.data) {
         setSuccess(true);
-        // Redirect after success message
         setTimeout(() => {
           router.push('/dashboard');
           router.refresh();
@@ -150,7 +123,7 @@ export default function SignUpPage() {
         setLoading(false);
       }
       
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Sign up error:', err);
       
       if (err instanceof Error) {
@@ -169,254 +142,334 @@ export default function SignUpPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = e.target;
     
-    setFormData(prev => ({
+    setFormData((prev: FormData) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
-
-    if (name === 'password') {
-      checkPasswordStrength(value);
-    }
     
     if (error) {
       setError(null);
     }
   };
 
+  if (!mounted) {
+    return <div className="min-h-screen" style={{ backgroundColor: "#F8F5EE" }} />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-200 to-base-300">
-      <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen">
-        {/* Left Side - Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12">
-          <div className="w-full max-w-md space-y-8">
-            {/* Header with Badge */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-3 bg-base-100 rounded-2xl px-6 py-3 mb-8 border border-accent" role="status">
-                <FiMail className="text-primary text-lg" aria-hidden="true" />
-                <span className="text-primary font-semibold">AI EMAIL BUILDER</span>
-              </div>
-              
-              <h1 className="text-4xl lg:text-5xl font-bold text-base-content mb-6 leading-tight">
-                Create Amazing{' '}
-                <span className="text-primary block lg:inline">Emails</span>
-              </h1>
-              
-              <p className="text-lg text-base-content/70 mb-8 font-normal leading-relaxed">
-                Build beautiful emails faster with AI-powered tools.
-              </p>
-            </div>
+    <section 
+      className="min-h-screen px-6 flex flex-col items-center justify-center relative overflow-hidden"
+      style={{ backgroundColor: "#F8F5EE" }}
+    >
+      {/* Animated floating gradient orbs */}
+      <div 
+        className="absolute top-20 -left-32 w-80 h-80 rounded-full blur-3xl opacity-20 pointer-events-none"
+        style={{ 
+          backgroundColor: brandColors.primary,
+          animation: 'float 6s ease-in-out infinite'
+        }}
+      ></div>
+      <div 
+        className="absolute -bottom-32 right-10 w-80 h-80 rounded-full blur-3xl opacity-20 pointer-events-none"
+        style={{ 
+          backgroundColor: brandColors.secondary,
+          animation: 'float 8s ease-in-out infinite 2s'
+        }}
+      ></div>
+      <div 
+        className="absolute top-1/2 left-1/3 w-72 h-72 rounded-full blur-3xl opacity-15 pointer-events-none"
+        style={{ 
+          backgroundColor: brandColors.accent,
+          animation: 'float 7s ease-in-out infinite 1s'
+        }}
+      ></div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Error Message */}
-              {error && (
-                <div className="bg-error/10 text-error text-sm p-4 rounded-2xl border border-error/20 flex items-start gap-3">
-                  <FiAlertCircle className="flex-shrink-0 mt-0.5" size={18} />
-                  <span>{error}</span>
-                </div>
-              )}
+      <style>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+          }
+          25% {
+            transform: translateY(-30px) translateX(20px);
+          }
+          50% {
+            transform: translateY(-60px) translateX(-20px);
+          }
+          75% {
+            transform: translateY(-30px) translateX(30px);
+          }
+        }
+      `}</style>
 
-              {/* Success Message */}
-              {success && (
-                <div className="bg-success/10 text-success text-sm p-4 rounded-2xl border border-success/20 flex items-start gap-3">
-                  <FiCheck className="flex-shrink-0 mt-0.5" size={18} />
-                  <span>Account created successfully! Redirecting...</span>
-                </div>
-              )}
-
-              {/* Name Input */}
-              <div className="space-y-3">
-                <label htmlFor="name" className="block text-sm font-semibold text-base-content">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40">
-                    <FiUser size={20} />
-                  </div>
-                  <input
-                    id="name"
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your full name"
-                    required
-                    disabled={loading}
-                    autoComplete="name"
-                    className="w-full pl-12 pr-4 py-4 bg-base-100 border border-base-300 rounded-2xl text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                  />
-                </div>
-              </div>
-
-              {/* Email Input */}
-              <div className="space-y-3">
-                <label htmlFor="email" className="block text-sm font-semibold text-base-content">
-                  Email address
-                </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40">
-                    <FiMail size={20} />
-                  </div>
-                  <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter your email"
-                    required
-                    disabled={loading}
-                    autoComplete="email"
-                    className="w-full pl-12 pr-4 py-4 bg-base-100 border border-base-300 rounded-2xl text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                  />
-                </div>
-              </div>
-
-              {/* Password Input */}
-              <div className="space-y-3">
-                <label htmlFor="password" className="block text-sm font-semibold text-base-content">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40">
-                    <FiLock size={20} />
-                  </div>
-                  <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Create a strong password"
-                    required
-                    disabled={loading}
-                    autoComplete="new-password"
-                    className="w-full pl-12 pr-4 py-4 bg-base-100 border border-base-300 rounded-2xl text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                  />
-                </div>
-                
-                {/* Password Strength Indicator */}
-                {formData.password && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-base-content/60">Password strength</span>
-                      <span className={`text-xs font-semibold ${passwordStrength.color}`}>
-                        {passwordStrength.label}
-                      </span>
-                    </div>
-                    <div className="w-full bg-base-300 rounded-full h-2">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-300 ${
-                          passwordStrength.score <= 1 ? 'bg-error' :
-                          passwordStrength.score <= 3 ? 'bg-warning' : 'bg-success'
-                        }`}
-                        style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Confirm Password Input */}
-              <div className="space-y-3">
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-base-content">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40">
-                    <FiLock size={20} />
-                  </div>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Confirm your password"
-                    required
-                    disabled={loading}
-                    autoComplete="new-password"
-                    className="w-full pl-12 pr-4 py-4 bg-base-100 border border-base-300 rounded-2xl text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                  />
-                </div>
-              </div>
-
-              {/* Terms Checkbox */}
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="agreeToTerms"
-                  name="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onChange={handleChange}
-                  disabled={loading}
-                  className="mt-1 w-4 h-4 rounded border-base-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                />
-                <label htmlFor="agreeToTerms" className="text-sm text-base-content/70 cursor-pointer">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-primary hover:text-primary/80 font-medium">
-                    Terms
-                  </Link>
-                  {' '}and{' '}
-                  <Link href="/privacy" className="text-primary hover:text-primary/80 font-medium">
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading || success}
-                className="w-full py-4 px-6 bg-primary hover:bg-primary/90 text-primary-content rounded-2xl text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Creating account...</span>
-                  </>
-                ) : success ? (
-                  <>
-                    <FiCheck size={20} />
-                    <span>Account created!</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Start Building</span>
-                    <FiArrowRight className="text-xl group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </button>
-
-              {/* Sign In Link */}
-              <div className="text-center pt-4">
-                <span className="text-base-content/60 font-medium">Already have an account? </span>
-                <Link 
-                  href="/sign-in" 
-                  className="text-primary hover:text-primary/80 font-semibold transition-colors"
-                  tabIndex={loading ? -1 : 0}
-                >
-                  Sign in
-                </Link>
-              </div>
-            </form>
-          </div>
+      <div className="w-full max-w-sm relative z-10 py-12">
+        {/* Header */}
+        <div className="mb-16">
+          <h1 className="text-5xl font-bold mb-4 leading-tight text-center" style={{ color: "#1a1a1a" }}>
+            Create Your
+            <br />
+            <span style={{ color: brandColors.secondary }}>Account</span>
+          </h1>
+          <p className="text-lg text-center leading-relaxed" style={{ color: "#666" }}>
+            Join thousands using Emailly
+          </p>
         </div>
 
-        {/* Right Side - Just Image */}
-        <div className="hidden lg:flex lg:w-1/2 h-screen bg-cover bg-center" style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1611605698335-8b1569810432?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80)'
-        }}>
-          {/* Optional: Add a subtle overlay for better text readability if needed */}
-          <div className="absolute inset-0 bg-black/10"></div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Error Message */}
+          {error && (
+            <div className="px-4 py-4 rounded-2xl border-2 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300" 
+              style={{ 
+                backgroundColor: "rgba(255, 102, 102, 0.1)",
+                borderColor: "rgba(255, 102, 102, 0.3)",
+                color: "#cc0000"
+              }} 
+              role="alert">
+              <FiAlertCircle className="flex-shrink-0 mt-0.5 w-5 h-5" />
+              <span className="font-medium">{error}</span>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {success && (
+            <div className="px-4 py-4 rounded-2xl border-2 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300" 
+              style={{ 
+                backgroundColor: "rgba(102, 255, 102, 0.1)",
+                borderColor: "rgba(102, 255, 102, 0.3)",
+                color: "#00cc00"
+              }} 
+              role="status">
+              <FiCheck className="flex-shrink-0 mt-0.5 w-5 h-5" />
+              <span className="font-medium">Account created! Redirecting...</span>
+            </div>
+          )}
+
+          {/* Name Input */}
+          <div className="space-y-3">
+            <label htmlFor="name" className="text-sm font-semibold text-base block" style={{ color: "#1a1a1a" }}>
+              Full Name
+            </label>
+            <div className="relative group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 group-focus-within:opacity-100" style={{ color: "#999", opacity: 0.5 }}>
+                <FiUser className="w-5 h-5" />
+              </div>
+              <input
+                id="name"
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                required
+                disabled={loading}
+                autoComplete="name"
+                className="w-full pl-12 pr-4 py-4 border-2 rounded-2xl text-base leading-relaxed focus:outline-none transition-all duration-200 disabled:opacity-50"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                  borderColor: "#f0f0f0",
+                  color: "#1a1a1a"
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = brandColors.primary;
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#f0f0f0";
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.8)";
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Email Input */}
+          <div className="space-y-3">
+            <label htmlFor="email" className="text-sm font-semibold text-base block" style={{ color: "#1a1a1a" }}>
+              Email Address
+            </label>
+            <div className="relative group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 group-focus-within:opacity-100" style={{ color: "#999", opacity: 0.5 }}>
+                <FiMail className="w-5 h-5" />
+              </div>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                required
+                disabled={loading}
+                autoComplete="email"
+                className="w-full pl-12 pr-4 py-4 border-2 rounded-2xl text-base leading-relaxed focus:outline-none transition-all duration-200 disabled:opacity-50"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                  borderColor: "#f0f0f0",
+                  color: "#1a1a1a"
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = brandColors.primary;
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#f0f0f0";
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.8)";
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Password Input */}
+          <div className="space-y-3">
+            <label htmlFor="password" className="text-sm font-semibold text-base block" style={{ color: "#1a1a1a" }}>
+              Password
+            </label>
+            <div className="relative group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 group-focus-within:opacity-100" style={{ color: "#999", opacity: 0.5 }}>
+                <FiLock className="w-5 h-5" />
+              </div>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Create a password"
+                required
+                disabled={loading}
+                autoComplete="new-password"
+                className="w-full pl-12 pr-4 py-4 border-2 rounded-2xl text-base leading-relaxed focus:outline-none transition-all duration-200 disabled:opacity-50"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                  borderColor: "#f0f0f0",
+                  color: "#1a1a1a"
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = brandColors.primary;
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#f0f0f0";
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.8)";
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Confirm Password Input */}
+          <div className="space-y-3">
+            <label htmlFor="confirmPassword" className="text-sm font-semibold text-base block" style={{ color: "#1a1a1a" }}>
+              Confirm Password
+            </label>
+            <div className="relative group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 group-focus-within:opacity-100" style={{ color: "#999", opacity: 0.5 }}>
+                <FiLock className="w-5 h-5" />
+              </div>
+              <input
+                id="confirmPassword"
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm your password"
+                required
+                disabled={loading}
+                autoComplete="new-password"
+                className="w-full pl-12 pr-4 py-4 border-2 rounded-2xl text-base leading-relaxed focus:outline-none transition-all duration-200 disabled:opacity-50"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                  borderColor: "#f0f0f0",
+                  color: "#1a1a1a"
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = brandColors.primary;
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#f0f0f0";
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.8)";
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Terms Checkbox */}
+          <div className="flex items-center justify-between text-sm">
+            <label className="flex items-center cursor-pointer group">
+              <input
+                type="checkbox"
+                name="agreeToTerms"
+                checked={formData.agreeToTerms}
+                onChange={handleChange}
+                disabled={loading}
+                className="w-5 h-5 rounded accent-color transition-all"
+                style={{ accentColor: brandColors.primary }}
+              />
+              <span className="ml-2.5 font-medium transition-colors group-hover:opacity-80" style={{ color: "#1a1a1a" }}>
+                I agree to the{' '}
+                <Link href="/terms" className="font-semibold underline" style={{ color: brandColors.primary }}>
+                  Terms
+                </Link>{' '}
+                and{' '}
+                <Link href="/privacy" className="font-semibold underline" style={{ color: brandColors.primary }}>
+                  Privacy
+                </Link>
+              </span>
+            </label>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading || success}
+            className="w-full py-4 px-6 rounded-2xl text-lg font-bold transition-all flex items-center justify-center gap-2 text-white hover:scale-105 active:scale-95 disabled:opacity-60"
+            style={{ 
+              backgroundColor: brandColors.secondary
+            }}
+          >
+            {loading ? (
+              <>
+                <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Creating account
+              </>
+            ) : success ? (
+              <>
+                <FiCheck className="w-5 h-5" />
+                Account created
+              </>
+            ) : (
+              <>
+                Create Account
+                <FiArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </button>
+
+          {/* Sign In Link */}
+          <div className="text-center text-sm">
+            <span style={{ color: "#666" }}>Already have an account? </span>
+            <Link 
+              href="/sign-in" 
+              className="font-semibold transition-colors hover:opacity-80"
+              style={{ color: brandColors.primary }}
+            >
+              Sign in
+            </Link>
+          </div>
+        </form>
+
+        {/* Bottom CTA */}
+        <div className="mt-16 pt-8 border-t text-center" style={{ borderColor: "#f0f0f0" }}>
+          <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: "#999" }}>
+            Trusted by thousands
+          </p>
+          <p className="text-sm leading-relaxed" style={{ color: "#666" }}>
+            Create stunning email templates with AI in seconds
+          </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

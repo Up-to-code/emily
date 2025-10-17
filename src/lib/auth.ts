@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
  import { PrismaClient } from "@prisma/client";
+import { nextCookies } from "better-auth/next-js";
 
 // If your Prisma file is located elsewhere, you can change the path
   const prisma = new PrismaClient();
@@ -12,4 +13,9 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
         enabled: true, 
         requireEmailVerification: false,
       }, 
+
+      plugins: [
+        // Add more plugins here
+        nextCookies()
+      ],
 });
